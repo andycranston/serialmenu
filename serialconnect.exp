@@ -1,0 +1,85 @@
+#!/usr/bin/env expect
+#
+# @(#--!) @(#) serialconnect.exp, sversion 0.1.0, fversion 004, 30-june-2024
+#
+# connect to a host using the cu ("call up") command
+#
+
+set debug 0
+
+#
+# Main
+#
+
+if {$debug} {
+  puts "Started at Main"
+}
+
+# get program/script name
+set progname [file tail $argv0]
+
+# error message if no command line arguments
+if {[llength $argv] == 0} {
+  send_error "$progname: no arguments given on command line\n"
+  exit 1
+}
+
+# error message if incorrect number of command line arguments
+if {[llength $argv] != 3} {
+  send_error "$progname: incorrect number of arguments on command line\n"
+  exit 1
+}
+
+# extract command line arguments
+set spawncmd [lindex $argv 0]
+set dev [lindex $argv 1]
+set logdir [lindex $argv 2]
+
+if {$debug} {
+  puts "$spawncmd"
+  puts "$logdir"
+}
+
+# get home directory
+if {[catch {set home $env(HOME)}] != 0} {
+  send_error "$progname: cannot get value of \$HOME\n"
+  exit 1
+}
+
+if {$debug} {
+  puts "$home"
+}
+
+# set a logfile name
+set seconds [clock seconds]
+set tstamp [clock format $seconds -format "%Y%m%d-%H%M%S"]
+set basefile "$logdir/[file tail $dev]-$tstamp"
+set logfile "$basefile.txt"
+set timefile "$basefile.tim"
+
+# spawn the script command
+spawn /usr/bin/script -t$timefile $logfile
+
+# wait for the initial prompt
+expect {
+  timeout {
+    send_error "\n$progname: timeout waiting for script prompt\n"
+    exit 1
+  }
+  eof {
+    send_error "\n$progname: eof waiting for script prompt\n"
+    exit 1
+  }
+  "$ " {
+    # fall through
+  }
+}
+
+# send the cu command
+send "$spawncmd ; exit\r"
+
+# now we give control to the user
+interact
+
+# control never gets here
+exit 0
