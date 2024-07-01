@@ -103,12 +103,13 @@ Lines such as:
 1:/dev/ttyUSB0:115200:Test of serial port:minicom -D %d -b %b
 ```
 
-consist of four fields separate by ':' characters. The fields are, in order:
+consist of five fields separate by ':' characters. The fields are, in order:
 
 ```
 Menu option number
 Device name of the serial port
 Baud rate/speed (common values are 9600 and 115200)
+Description for the menu option
 Command to invoke to make a connection
 ```
 
@@ -118,7 +119,7 @@ In the above example the command to invoke is:
 minicom -D %d -b %b
 ```
 
-The command line arguments are not the actual values used. Whenever a %d is encountered itis changed to the
+The command line arguments are not the actual values used. Whenever a %d is encountered it is changed to the
 device name of the serial port and whenever a %b is encountered it is changed to the baud rate/speed to
 use when connecting.
 
